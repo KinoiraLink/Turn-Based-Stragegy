@@ -10,6 +10,7 @@ public class Unit : MonoBehaviour
     private const string IS_WALKING = "IsWalking";
 
     private Vector3 targetPosition;//移动目标位置
+    private GridPosition gridPosition;//网格位置
     private float moveSpeed = 4f;
     private float stoppingDistance = 0.1f;
     private float rotationSpeed = 10f;
@@ -17,6 +18,12 @@ public class Unit : MonoBehaviour
     private void Awake()
     {
         targetPosition = transform.position;
+    }
+
+    private void Start()
+    {
+         gridPosition = LevelGrid.Instance.GetGridPosition(transform.position);
+        LevelGrid.Instance.AddUnitAtGridPositiion(gridPosition,this);
     }
     private void Update()
     {
@@ -36,9 +43,16 @@ public class Unit : MonoBehaviour
         {
             unitAnimator.SetBool (IS_WALKING, false);
         }
-        
 
 
+        GridPosition newGridPosition = LevelGrid.Instance.GetGridPosition(transform.position);
+
+        //如果新网格位置与原网格位置不相同
+        if (newGridPosition != gridPosition)
+        {
+            LevelGrid.Instance.UnitMovedGridPosition(this,gridPosition,newGridPosition);
+            gridPosition = newGridPosition;
+        }
     }
 
     /// <summary>

@@ -62,7 +62,7 @@ public class GridSystem
         }
     }
 
-    private GridObject GetGridObject(GridPosition gridPosition)
+    public GridObject GetGridObject(GridPosition gridPosition)
     {
        return gridObjectArray[gridPosition.x, gridPosition.z];
     }
