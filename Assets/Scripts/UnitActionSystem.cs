@@ -12,22 +12,53 @@ public class UnitActionSystem : MonoBehaviour
 
     public event EventHandler OnSelectedUnitChanged;
 
+    private bool isBusy;
+
     private void Awake()
     {
-        if (Instance == null)
+        if (Instance != null)
         {
-            Instance = this;
+            Debug.LogError("There's more than one UnitActionSystem! + " + transform + "-" + Instance);
+            Destroy(gameObject);
+            return;
         }
-        
+
+        Instance = this;
     }
 
     private void Update()
     {
+        if (isBusy)
+        {
+            return;
+        }
         if (Input.GetMouseButtonDown(0))
         {
             if (TryHandleUnitSelection()) return;
-            selectedUnit.Move(MouseWorld.GetPostion());
+
+            GridPosition mouseGridPosition = LevelGrid.Instance.GetGridPosition(MouseWorld.GetPostion());
+            if (selectedUnit.GetMoveAction().IsValidActionGridPosition(mouseGridPosition))
+            {
+                SetBusy();
+                selectedUnit.GetMoveAction().Move(mouseGridPosition,ClearBusy);
+            }
         }
+
+        if (Input.GetMouseButtonDown(1))
+        {
+            SetBusy();
+            selectedUnit.GetSpinAction().Spin(ClearBusy);
+        }
+    }
+
+    private void SetBusy()
+    {
+        isBusy = true;
+    }
+
+    private void ClearBusy()
+    {
+        isBusy = false;
     }
 
 

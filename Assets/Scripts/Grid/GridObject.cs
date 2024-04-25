@@ -38,4 +38,10 @@ public class GridObject
     {
         return unitList;
     }
+    
+    /// <summary>
+    /// 格子上是否存在单位
+    /// </summary>
+    /// <returns></returns>
+    public bool HasAnyUnit() => unitList.Count > 0;
 }

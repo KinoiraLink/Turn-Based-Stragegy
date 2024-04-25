@@ -42,5 +42,21 @@ public struct GridPosition : IEquatable<GridPosition>
     public static bool operator !=(GridPosition a, GridPosition b)
     {
         return !(a == b);
-    } 
+    }
+
+    /// <summary>
+    /// 位置相加
+    /// </summary>
+    public static GridPosition operator +(GridPosition a, GridPosition b)
+    {
+        return new GridPosition(a.x + b.x, a.z + b.z);
+    }
+    
+    /// <summary>
+    /// 位置相减
+    /// </summary>
+    public static GridPosition operator -(GridPosition a, GridPosition b)
+    {
+        return new GridPosition(a.x - b.x, a.z - b.z);
+    }
 }
