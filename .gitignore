@@ -72,3 +72,5 @@ crashlytics-build.properties
 /[Aa]ssets/[Ss]treamingAssets/aa/*
 /[Aa]ssets/_[Aa]ssets
 .vsconfig
+*.png
+Assets/Textures/Grid.png.meta
