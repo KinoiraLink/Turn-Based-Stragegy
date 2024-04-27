@@ -72,10 +72,10 @@ namespace Grid
         
         private void UpdateGridVisual()
         {
-            Unit slectedUnit = UnitActionSystem.Instance.GetSelectedUnit();
+            BaseAction selectedAction = UnitActionSystem.Instance.GetSelectedAction();
             HideAllGridPosition();
             ShowGridPositionList(
-                slectedUnit.GetMoveAction().GetValidActionGridPositionList()
+                selectedAction.GetValidActionGridPositionList()
             );
         }
     }

@@ -26,6 +26,11 @@ public class MoveAction : BaseAction
         targetPosition = transform.position;
     }
 
+    public override string GetActionName()
+    {
+        return "Move";
+    }
+
     private void Start()
     {
         unitAnimator.SetBool(IS_WALKING, false);
@@ -64,16 +69,25 @@ public class MoveAction : BaseAction
     /// 获取目标位置
     /// </summary>
     /// <param name="targetPositon"></param>
+    /*
     public void Move(GridPosition targetPositon,Action onMoveComplete)
     {
         this.OnActionComplete = onMoveComplete;
         this.targetPosition = LevelGrid.Instance.GetWorldPosition(targetPositon);
         isActive = true;
     }
+    */
+    /*
+     * 这里我的想法是不改动Move 而是 新建实现方法 TakeAction
+     */
+    public override void TakeAction(GridPosition targetPositon,Action onMoveComplete)
+    {
+        this.OnActionComplete = onMoveComplete;
+        this.targetPosition = LevelGrid.Instance.GetWorldPosition(targetPositon);
+        isActive = true;
+    }
     
-    
-    
-    public List<GridPosition> GetValidActionGridPositionList()
+    public override List<GridPosition> GetValidActionGridPositionList()
     {
         List<GridPosition> validGridPositionList = new List<GridPosition>();
         GridPosition unitGridPosition = unit.GetGridPosition();
@@ -108,10 +122,5 @@ public class MoveAction : BaseAction
         }
         return validGridPositionList;
     }
-
-    public bool IsValidActionGridPosition(GridPosition gridPosition)
-    {
-        List<GridPosition> validGridPositionList = GetValidActionGridPositionList();
-        return validGridPositionList.Contains(gridPosition);
-    }
+    
 }
