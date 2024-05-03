@@ -2,32 +2,31 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-
-
-public class SpinAction : BaseAction
+namespace Actions
 {
-    
-    private float totalSpinAmount;
-
-    private void Update()
+    public class SpinAction : BaseAction
     {
-        if (!isActive)
+    
+        private float totalSpinAmount;
+
+        private void Update()
         {
-            return;
-        }
+            if (!isActive)
+            {
+                return;
+            }
         
-        float spinAddAmount = 360 * Time.deltaTime;
-        transform.eulerAngles += new Vector3(0, spinAddAmount, 0);
+            float spinAddAmount = 360 * Time.deltaTime;
+            transform.eulerAngles += new Vector3(0, spinAddAmount, 0);
 
-        totalSpinAmount += spinAddAmount;
-        if (totalSpinAmount >= 360f)
-        {
-            isActive = false;
-            OnActionComplete?.Invoke();
+            totalSpinAmount += spinAddAmount;
+            if (totalSpinAmount >= 360f)
+            {
+                ActionComplete();
+            }
         }
-    }
 
-    /*
+        /*
     public void Spin(Action onSpinComplete)
     {
         this.OnActionComplete = onSpinComplete;
@@ -35,30 +34,39 @@ public class SpinAction : BaseAction
         totalSpinAmount = 0f;
     }
     */
-    public override void TakeAction(GridPosition gridPosition,Action onSpinComplete)
-    {
-        this.OnActionComplete = onSpinComplete;
-        isActive = true;
-        totalSpinAmount = 0f;
-    }
-
-    public override List<GridPosition> GetValidActionGridPositionList()
-    {
-        GridPosition unitGridPosition = unit.GetGridPosition();
-
-        return new List<GridPosition>
+        public override void TakeAction(GridPosition gridPosition,Action onSpinComplete)
         {
-            unitGridPosition
-        };
-    }
+            totalSpinAmount = 0f;
+            ActionStart(onSpinComplete);
+        }
 
-    public override string GetActionName()
-    {
-        return "Spin";
-    }
+        public override List<GridPosition> GetValidActionGridPositionList()
+        {
+            GridPosition unitGridPosition = unit.GetGridPosition();
 
-    public override int GetActionPointsCost()
-    {
-        return 2;
+            return new List<GridPosition>
+            {
+                unitGridPosition
+            };
+        }
+
+        public override string GetActionName()
+        {
+            return "Spin";
+        }
+
+        public override int GetActionPointsCost()
+        {
+            return 1;
+        }
+    
+        public override EnemyAIAction GetEnemyAIAction(GridPosition gridPosition)
+        {
+            return new EnemyAIAction()
+            {
+                gridPosition = gridPosition,
+                actionValue = 0,
+            };
+        }
     }
 }
