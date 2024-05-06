@@ -20,9 +20,6 @@ public class Unit : MonoBehaviour
     private GridPosition gridPosition;//网格位置
     private HealthSystem healthSystem;
     
-    private MoveAction moveAction;
-    private SpinAction spinAction;
-    private ShootAction shootAction;
 
 
     private BaseAction[] baseActionArray;
@@ -31,9 +28,6 @@ public class Unit : MonoBehaviour
     private void Awake()
     {
         actionPoints = ACTION_POINTS_MAX;
-        moveAction = GetComponent<MoveAction>();
-        spinAction = GetComponent<SpinAction>();
-        shootAction = GetComponent<ShootAction>();
         
         baseActionArray = GetComponents<BaseAction>();
         healthSystem = GetComponent<HealthSystem>(); 
@@ -65,12 +59,7 @@ public class Unit : MonoBehaviour
             
         }
     }
-
-    public MoveAction GetMoveAction() => moveAction;
-
-    public SpinAction GetSpinAction() => spinAction;
-
-    public ShootAction GetShootAction() => shootAction;
+    
 
 
     /// <summary>
@@ -144,6 +133,19 @@ public class Unit : MonoBehaviour
     }
 
     public float GetHealthNormalized() => healthSystem.GetHealthNormalized();
+    
+    public T GetAction<T>() where T : BaseAction
+    {
+        foreach (BaseAction baseAction in baseActionArray)
+        {
+            if (baseAction is T)
+            {
+                return (T)baseAction;
+            }
+        }
+
+        return null;
+    }
 }
 
 

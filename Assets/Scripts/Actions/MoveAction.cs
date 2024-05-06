@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using Actions;
+using Assets;
 using UnityEngine;
 
 public class MoveAction : BaseAction
@@ -11,9 +12,11 @@ public class MoveAction : BaseAction
     
 
     [SerializeField] private int maxMoveDistance = 4;
-    
-    private Vector3 targetPosition;//移动目标位置
-    
+    private int pathfindingDistanceMultiplier = 10;
+    private List<Vector3> positionList;//移动目标位置
+
+    private int currentPositionIndex;
+   
     
     private float moveSpeed = 4f;
     private float stoppingDistance = 0.1f;
@@ -24,7 +27,6 @@ public class MoveAction : BaseAction
     protected override void Awake()
     {
         base.Awake();
-        targetPosition = transform.position;
     }
 
     public override string GetActionName()
@@ -42,21 +44,30 @@ public class MoveAction : BaseAction
         {
             return;
         }
+
+        Vector3 targetPosition = positionList[currentPositionIndex];
         Vector3 moveDirection = (targetPosition - transform.position).normalized;
 
+        //旋转
+        transform.forward = Vector3.Lerp(transform.forward, moveDirection, Time.deltaTime * rotationSpeed);
+        
         //防止移动后误差异常带来的困扰
         if (Vector3.Distance(transform.position,targetPosition)> stoppingDistance)
         {
             transform.position += moveDirection * moveSpeed * Time.deltaTime;
         }
-        else 
+        else
         {
-            OnStopMoving?.Invoke(this,EventArgs.Empty);
-            ActionComplete();
+            currentPositionIndex++;
+            if (currentPositionIndex >= positionList.Count)
+            {
+                OnStopMoving?.Invoke(this,EventArgs.Empty);
+                ActionComplete();
+            }
+            
         }
         
-        //旋转
-        transform.forward = Vector3.Lerp(transform.forward, moveDirection, Time.deltaTime * rotationSpeed);
+       
     }
 
     /// <summary>
@@ -76,7 +87,14 @@ public class MoveAction : BaseAction
      */
     public override void TakeAction(GridPosition targetPositon,Action onActionComplete)
     {
-        this.targetPosition = LevelGrid.Instance.GetWorldPosition(targetPositon);
+        List<GridPosition> pathGridPositionList = Pathfinding.Instance.FindPath(unit.GetGridPosition(), targetPositon,out int pathLength);
+        currentPositionIndex = 0;
+        this.positionList = new List<Vector3>();
+
+        foreach (GridPosition pathGridPosition in pathGridPositionList)
+        {
+            positionList.Add(LevelGrid.Instance.GetWorldPosition(pathGridPosition));
+        }
         
         OnStartMoving?.Invoke(this,EventArgs.Empty);
         
@@ -113,6 +131,25 @@ public class MoveAction : BaseAction
                     //网格站着其他单位
                     continue;
                 }
+
+                if (!Pathfinding.Instance.IsWalkableGridPosition(testGridPosition))
+                {
+                    //网格上存在障碍
+                    continue;
+                }
+
+                if (!Pathfinding.Instance.HasPath(unitGridPosition, testGridPosition))
+                {
+                    //障碍不可达
+                    continue;
+                }
+
+                if (Pathfinding.Instance.GetPathLength(unitGridPosition, testGridPosition) > maxMoveDistance * pathfindingDistanceMultiplier)
+                {
+                    //太远不可达
+                    continue;
+                }
+                
                 validGridPositionList.Add(testGridPosition);
             }
         }
@@ -121,7 +158,7 @@ public class MoveAction : BaseAction
 
     public override EnemyAIAction GetEnemyAIAction(GridPosition gridPosition)
     {
-        int targetCountAtGridPosition = unit.GetShootAction().GetTargetCountAtPosition(gridPosition);
+        int targetCountAtGridPosition = unit.GetAction<ShootAction>().GetTargetCountAtPosition(gridPosition);
         return new EnemyAIAction()
         {
             gridPosition = gridPosition,

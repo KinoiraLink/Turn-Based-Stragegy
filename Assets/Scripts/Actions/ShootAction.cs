@@ -21,7 +21,7 @@ namespace Actions
         }
 
         public event EventHandler<OnShootEventArgs> OnShoot;
-
+        [SerializeField] private LayerMask obstaclesLayerMask;
         private State state;
         private int maxShootDistance;
         private float stateTimer;
@@ -159,6 +159,22 @@ namespace Actions
                     {
                         continue;
                     }
+                    
+                    float unitShoulderHeight = 1.7f;
+                    Vector3 unitWorldPosition = LevelGrid.Instance.GetWorldPosition(unitGridPosition);
+                    Vector3 shootDir = (targetUnit.GetWorldPosition() - unitWorldPosition).normalized;
+       
+                    if (Physics.Raycast(
+                            unitWorldPosition + Vector3.up * unitShoulderHeight,
+                            shootDir,
+                            Vector3.Distance(unitWorldPosition, targetUnit.GetWorldPosition()),
+                            obstaclesLayerMask
+                        ))
+                    {
+                        //障碍不可达
+                        continue;
+                    }
+                    
                     validGridPositionList.Add(testGridPosition);
                 
                 }

@@ -1,15 +1,19 @@
 using System;
 using System.Collections.Generic;
+using Assets;
 using UnityEngine;
 
 public class LevelGrid : MonoBehaviour
 {
     [SerializeField] private Transform gridDebufObjectPrefab;
-
+    [SerializeField] private int width;
+    [SerializeField]private int height;
+    [SerializeField] private float cellSize;
     public static LevelGrid Instance { get; private set; }
     public event EventHandler OnAnyUnitMoveGridPosition;
+ 
     
-    private GridSystem gridSystem;
+    private GridSystem<GridObject> gridSystem;
 
     private void Awake()
     {
@@ -17,9 +21,15 @@ public class LevelGrid : MonoBehaviour
         {
             Instance = this;
         }
-        gridSystem = new GridSystem(10,10,2f);
+        gridSystem = new GridSystem<GridObject>(width,height,cellSize,
+            ((GridSystem<GridObject> g,GridPosition gridPosition) => new GridObject(g,gridPosition)));
 
-        gridSystem.CreateDebugObjects(gridDebufObjectPrefab);
+       // gridSystem.CreateDebugObjects(gridDebufObjectPrefab);
+    }
+
+    private void Start()
+    {
+        Pathfinding.Instance.Setup(width,height,cellSize);
     }
 
     public void AddUnitAtGridPositiion(GridPosition gridPosition,Unit unit)
