@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using Assets;
 using UnityEngine;
 
 namespace Actions
@@ -20,6 +21,8 @@ namespace Actions
             Cooloff,
         }
 
+
+        public static event EventHandler<OnShootEventArgs> OnAnyShoot;
         public event EventHandler<OnShootEventArgs> OnShoot;
         [SerializeField] private LayerMask obstaclesLayerMask;
         private State state;
@@ -185,6 +188,11 @@ namespace Actions
      
         private void Shoot()
         {
+            OnAnyShoot?.Invoke(this,new OnShootEventArgs
+            {
+                targetUnit = targetUnit,
+                shootingUnit = unit,
+            }); 
             OnShoot?.Invoke(this,new OnShootEventArgs
             {
                 targetUnit = targetUnit,

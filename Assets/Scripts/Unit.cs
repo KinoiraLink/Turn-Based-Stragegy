@@ -43,8 +43,7 @@ public class Unit : MonoBehaviour
          
          OnAnyUnitSpawned?.Invoke(this,EventArgs.Empty);
     }
-
-
+    
 
 
     private void Update()
@@ -130,6 +129,7 @@ public class Unit : MonoBehaviour
         LevelGrid.Instance.RemoveUniAtGridPosition(gridPosition,this);
         Destroy(gameObject);
         OnAnyUnitDead?.Invoke(this,EventArgs.Empty); 
+
     }
 
     public float GetHealthNormalized() => healthSystem.GetHealthNormalized();

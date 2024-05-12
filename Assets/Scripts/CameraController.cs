@@ -1,5 +1,5 @@
-using System.Collections;
-using System.Collections.Generic;
+
+using Assets;
 using UnityEngine;
 using Cinemachine;
 public class CameraController : MonoBehaviour
@@ -15,8 +15,7 @@ public class CameraController : MonoBehaviour
 
     float moveSpeed = 10f;
     float rotationSpeed = 100f;
-    float zoomAmount = 1f;
-    float ZoomSpeed = 5;
+    float zoomSpeed = 5;
 
     private void Start()
     {
@@ -35,26 +34,10 @@ public class CameraController : MonoBehaviour
     private void HandleMovement()
     {
         //移动
-        Vector3 inputMoveDir = new Vector3(0, 0, 0);
+        Vector2 inputMoveDir = InputManager.Instance.GetCameraMoveVector();
 
-        if (Input.GetKey(KeyCode.W))
-        {
-            inputMoveDir.z = +1f;
-        }
-        if (Input.GetKey(KeyCode.S))
-        {
-            inputMoveDir.z = -1f;
-        }
-        if (Input.GetKey(KeyCode.A))
-        {
-            inputMoveDir.x = -1f;
-        }
-        if (Input.GetKey(KeyCode.D))
-        {
-            inputMoveDir.x = +1f;
-        }
-
-        Vector3 moveVector = transform.forward * inputMoveDir.z + transform.right * inputMoveDir.x;
+        
+        Vector3 moveVector = transform.forward * inputMoveDir.y + transform.right * inputMoveDir.x;
 
         transform.position += moveVector * moveSpeed * Time.deltaTime;
     }
@@ -62,30 +45,22 @@ public class CameraController : MonoBehaviour
     {
         //转动
         Vector3 rotationVector = new Vector3(0, 0, 0);
-        if (Input.GetKey(KeyCode.Q))
-        {
-            rotationVector.y = +1f;
-        }
-        if (Input.GetKey(KeyCode.E))
-        {
-            rotationVector.y = -1f;
-        }
+
+        rotationVector.y = InputManager.Instance.GetCameraRotateAmount();
+        
+        
 
         transform.eulerAngles += rotationVector * rotationSpeed * Time.deltaTime;
     }
 
     private void HandleZoom()
-    {  //缩放
-        if (Input.mouseScrollDelta.y > 0f)
-        {
-            targetFollowOffset.y -= zoomAmount;
-        }
-        if (Input.mouseScrollDelta.y < 0f)
-        {
-            targetFollowOffset.y += zoomAmount;
-        }
+    {
+        float zoomIncreaseAmount = 1f;
+
+        targetFollowOffset.y += InputManager.Instance.GetCameraZoomAmount() * zoomIncreaseAmount;
+        
         targetFollowOffset.y = Mathf.Clamp(targetFollowOffset.y, MIN_FOLLOW_Y_OFFSET, MAX_FOLLOW_Y_OFFSET);
 
-        cinemachineTransposer.m_FollowOffset = Vector3.Lerp(cinemachineTransposer.m_FollowOffset, targetFollowOffset, Time.deltaTime * ZoomSpeed);
+        cinemachineTransposer.m_FollowOffset = Vector3.Lerp(cinemachineTransposer.m_FollowOffset, targetFollowOffset, Time.deltaTime * zoomSpeed);
     }
 }
